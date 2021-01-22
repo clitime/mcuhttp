@@ -1,0 +1,4 @@
+build/
+version/version.c
+*.o
+mcuhttp

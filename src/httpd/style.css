@@ -1,0 +1,87 @@
+body {
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+.application {
+    width: 760px;
+	margin: auto;
+	padding: 20px;
+	border: 1px solid #333;
+	background-color: #fff;
+	box-shadow: 0 0 10px rgba(0, 0, 0, 1.5);
+	-webkit-box-shadow: 0 0 10px rgba(0, 0, 0, 1.5);
+	-moz-box-shadow: 0 0 10px rgba(0, 0, 0, 1.5);
+}
+
+.base {
+    width: 100%;
+    display: inline-flex;
+}
+
+.title_right, .title_left, .title {
+	width: 50%;
+	background: rgb(48, 148, 35);
+	padding: 5px;
+	font-size: 15px;
+	font-weight: bold;
+	color: #fff;
+	margin-bottom: 15px;
+	height: 20px;
+}
+.title_right {
+	text-align: right;
+}
+.title_left {
+	text-align: left;
+}
+.title {
+	text-align: center;
+}
+	.title_right a, .title a, .title_left a {
+		display: block;
+		color: white;
+		font-weight: bold;
+		text-decoration: none;
+	}
+	.title_left a:hover,
+	.title_right a:hover,
+	.title a:hover {
+		background: rgb(33, 109, 14);
+	}
+
+.left_bar {
+	width: 20%;
+	padding-right: 5px;
+}
+
+	.left_bar a {
+		display: flex;
+		background: rgb(48, 148, 35);
+		color: white;
+		padding: 5px;
+		font-weight: bold;
+		border-bottom: 1px solid #fff;
+		text-decoration: none;
+	}
+
+	.left_bar a:hover {
+		background: rgb(33, 109, 14);
+	}
+
+.right_bar {
+	width: 70%;
+	padding-left: 5px;
+}
+
+.content {
+	width: 100%;
+}
+
+.footer {
+	color: #666;
+	font-size: 0.8em;
+	text-align: center;
+	margin: 15px 50px 0 15px;
+	padding-top: 5px;
+	border-top: 1px dotted #666;
+}
