@@ -2,7 +2,7 @@
 #define http_base_h_
 
 #include <stdbool.h>
-extern bool is_authorization;
+extern bool isAuthorization;
 
 
 typedef enum {

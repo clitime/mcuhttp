@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-struct fs_file http_read_parser(char *, uint16_t , char *, uint16_t *, bool *);
+struct fs_file httpParser(char *buf1, uint16_t in_data_len, char *out_buf, uint16_t *left_data, bool *ok);
 
 
 #endif

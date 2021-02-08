@@ -10,7 +10,7 @@
 static char read_buf[1640];
 static int save_conn = -1;
 
-int read_request(int conn, char **buf) {
+int readRequest(int conn, char **buf) {
     memset(read_buf, 0, sizeof(read_buf));
     *buf = 0;
     if (conn >= 0) {

@@ -5,7 +5,7 @@
 #include "fsdata.h"
 
 
-err_t fs_open(struct fs_file *file, const char *name) {
+err_t fsOpen(struct fs_file *file, const char *name) {
     const struct fsdata_file *f;
 
     if ((file == NULL) || (name == NULL)) {
@@ -26,11 +26,11 @@ err_t fs_open(struct fs_file *file, const char *name) {
 }
 
 
-void fs_close(struct fs_file *file) {
+void fsClose(struct fs_file *file) {
     memset(file, 0, sizeof(struct fs_file));
 }
 
 
-int fs_bytes_left(struct fs_file *file) {
+int fsBytesLeft(struct fs_file *file) {
     return file->len - file->index;
 }

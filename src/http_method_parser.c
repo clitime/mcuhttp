@@ -54,7 +54,7 @@ static const char *headerArr[] = {
     NULL
 };
 
-bool is_authorization = false;
+bool isAuthorization = false;
 
 static inline bool is_slash(const char *c) {
     return (strncmp(c, "/", 1) == 0);
@@ -110,40 +110,40 @@ void error_505(char *out_buf) {
     sprintf(out_buf, "%s%s\r\n\r\n", header, content);
 }
 
-struct fs_file method_handler(ext_t ext, char *uri, uint16_t len, char *out_buf, char *body, uint16_t body_len, method_t method) {
+struct fs_file methodHandler(ext_t ext, char *uri, uint16_t len, char *out_buf, char *body, uint16_t body_len, method_t method) {
     struct fs_file file = {NULL, 0, 0, NULL};
     out_buf[0] = '\0';
 
     char file_name[255] = {0};
-    if ((len == 1) && is_slash(uri)) {
+    if ((len == 1) && isSlash(uri)) {
         strncat(file_name, "/index.html\0", 12);
     } else {
         strncat(file_name, uri, len);
     }
 
-    if (!is_authorization && ext == E_HTML && strncmp(file_name, "/index.html", sizeof("/index.html"))) {
-        if (fs_open(&file, "/login.html\0")) {
-            if (fs_open(&file, "/404.html\0")) {
-                fs_close(&file);
+    if (!isAuthorization && ext == E_HTML && strncmp(file_name, "/index.html", sizeof("/index.html"))) {
+        if (fsOpen(&file, "/login.html\0")) {
+            if (fsOpen(&file, "/404.html\0")) {
+                fsClose(&file);
             } else {
                 ext = E_NOT_FOUND;
             }
         }
-    } else if (!is_authorization && ext == E_TXT) {
-        if (fs_open(&file, "/txt/login.txt\0")) {
-            fs_close(&file);
+    } else if (!isAuthorization && ext == E_TXT) {
+        if (fsOpen(&file, "/txt/login.txt\0")) {
+            fsClose(&file);
 
-            if (fs_open(&file, "/txt/404.txt\0")){
-                fs_close(&file);
+            if (fsOpen(&file, "/txt/404.txt\0")){
+                fsClose(&file);
             } else{
                 ext = E_NOT_FOUND;
             }
         }
-    } else if ((ext != E_CGI) && fs_open(&file, file_name)) {
-        fs_close(&file);
+    } else if ((ext != E_CGI) && fsOpen(&file, file_name)) {
+        fsClose(&file);
 
-        if (fs_open(&file, "/404.html\0")) {
-            fs_close(&file);
+        if (fsOpen(&file, "/404.html\0")) {
+            fsClose(&file);
         } else {
             ext = E_NOT_FOUND;
         }
@@ -165,7 +165,7 @@ struct fs_file method_handler(ext_t ext, char *uri, uint16_t len, char *out_buf,
         case E_CGI:
             header = headerArr[HTTP_HEADER_200];
             content = headerArr[CONTENT_UTF];
-            cgi_handler(uri, tmp_buf, body, body_len, method);
+            cgiHandler(uri, tmp_buf, body, body_len, method);
             break;
         case E_TXT:
             header = headerArr[HTTP_HEADER_200];

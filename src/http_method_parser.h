@@ -8,8 +8,8 @@
 #include "http_base.h"
 
 
-struct fs_file method_handler(ext_t ext, char *uri, uint16_t len, char *out_buf,
-                                char *body, uint16_t body_len, method_t method);
+struct fs_file methodHandler(ext_t ext, char *uri, uint16_t len, char *out_buf,
+                             char *body, uint16_t body_len, method_t method);
 
 void error_400(char *out_buf);
 void error_413(char *out_buf);

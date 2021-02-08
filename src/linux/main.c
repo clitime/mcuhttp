@@ -2,6 +2,6 @@
 
 
 int main () {
-    https_initialize();
+    httpsInitialize();
     return 0;
 }

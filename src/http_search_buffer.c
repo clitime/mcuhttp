@@ -2,7 +2,7 @@
 #include <string.h>
 
 
-struct buffer search_in_buffer(char **buf, enum what_search what) {
+struct buffer searchInBuffer(char **buf, enum what_search what) {
     struct buffer ret_buf = {.data = *buf, .len = 0};
 
     uint16_t buf_len = strlen(*buf);

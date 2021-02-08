@@ -1,11 +1,11 @@
 #include "base64.h"
 
 /* RFC4648 Table 2. The URL and filename safe base 64 alphabet */
-static const char encode_table[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_=";
+static const char encodeTable[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_=";
 
 
-static void encode_block(const char *const in, char *const out, uint16_t len);
-static uint8_t decode_block(const char *const in, char *const out, uint16_t len);
+static void encodeBlock(const char *const in, char *const out, uint16_t len);
+static uint8_t decodeBlock(const char *const in, char *const out, uint16_t len);
 /**
  * -1 - длина выходного буфера не кратна 4
  * -2 - длины выходного буфера не достаточно
@@ -28,7 +28,7 @@ int8_t encode(const char *const in, uint16_t in_len, char *const out, uint16_t o
         if (len_diff < 3)
             len = len_diff;
 
-        encode_block(&in[ix_in], &out[ix_out], len);
+        encodeBlock(&in[ix_in], &out[ix_out], len);
         ix_in += 3;
         ix_out += 4;
     }
@@ -41,17 +41,17 @@ int8_t encode(const char *const in, uint16_t in_len, char *const out, uint16_t o
  * |6 5 4 3 2 1|6 5 4 3 2 1|6 5 4 3 2 1|6 5 4 3 2 1| - выход
  * выходной буфер должен быть кратен 4 байт
  */
-static void encode_block(const char *const in, char *const out, uint16_t len) {
+static void encodeBlock(const char *const in, char *const out, uint16_t len) {
     if (!len) {
         return;
     }
 
     uint8_t ix = (uint8_t)(in[0] >> 2);
-    out[0] = encode_table[ix];
+    out[0] = encodeTable[ix];
 
     ix = len > 1 ? (uint8_t)((in[0] & 0x03) << 4) | (uint8_t)(in[1] >> 4)
                  : (uint8_t)((in[0] & 0x03) << 4);
-    out[1] = encode_table[ix];
+    out[1] = encodeTable[ix];
 
     if (len > 1) {
         ix = len > 2 ? (uint8_t)((in[1] & 0x0f) << 2) | (uint8_t)(in[2] >> 6)
@@ -59,10 +59,10 @@ static void encode_block(const char *const in, char *const out, uint16_t len) {
     } else {
         ix = 64;
     }
-    out[2] = encode_table[ix];
+    out[2] = encodeTable[ix];
 
     ix = len == 3 ? (uint8_t)(in[2] & 0x3f) : 64;
-    out[3] = encode_table[ix];
+    out[3] = encodeTable[ix];
 }
 
 
@@ -72,7 +72,7 @@ static void encode_block(const char *const in, char *const out, uint16_t len) {
  * |8 7 6 5 4 3 2 1|8 7 6 5 4 3 2 1|8 7 6 5 4 3 2 1| - выход
  * SA== равно 1 символу H (0x48)
  */
-static uint8_t decode_block(const char *const in, char *const out, uint16_t len) {
+static uint8_t decodeBlock(const char *const in, char *const out, uint16_t len) {
     if (!len) {
         return 0;
     }
@@ -120,7 +120,7 @@ uint16_t decode(const char *const in, uint16_t in_len, char *const out, uint16_t
         if (len_diff < 4)
             len = len_diff;
 
-        ix_out += decode_block(&in[ix_in], &out[ix_out], len);
+        ix_out += decodeBlock(&in[ix_in], &out[ix_out], len);
         ix_in += 4;
     }
     return ix_out;

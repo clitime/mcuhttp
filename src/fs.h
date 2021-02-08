@@ -16,8 +16,8 @@ struct fs_file {
 
 typedef int8_t err_t;
 
-err_t fs_open(struct fs_file *file, const char *name);
-void fs_close(struct fs_file *file);
-int fs_bytes_left(struct fs_file *file);
+err_t fsOpen(struct fs_file *file, const char *name);
+void fsClose(struct fs_file *file);
+int fsBytesLeft(struct fs_file *file);
 
 #endif /* __FS_H__ */

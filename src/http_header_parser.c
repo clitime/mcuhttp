@@ -6,7 +6,7 @@
 
 static struct headers headers_struct = {0};
 
-struct headers * header_parser(struct buffer *const buf) {
+struct headers * headerParser(struct buffer *const buf) {
     uint16_t len = buf->len;
     const char *const headers = buf->data;
     headers_struct = (struct headers){0};

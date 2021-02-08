@@ -31,24 +31,24 @@ static const uint8_t cgi_allow_request[] = {
 static char *query_param[20]; //буфер параметров
 
 
-static uint8_t parse_parameter(char *param);
-static enum cgi get_cgi_function(const char *cgi_request);
-static inline char *search_parameter(char *uri, char **new_uri);
+static uint8_t parseParameter(char *param);
+static enum cgi getCgiFunction(const char *cgi_request);
+static inline char *searchParameter(char *uri, char **new_uri);
 
 
-void cgi_handler(char *uri, char *out_buf, char *body, uint16_t body_len, method_t method) {
-    char *param = search_parameter(uri, &uri);
-    uint8_t count_param = parse_parameter(param);
+void cgiHandler(char *uri, char *out_buf, char *body, uint16_t body_len, method_t method) {
+    char *param = searchParameter(uri, &uri);
+    uint8_t count_param = parseParameter(param);
 
-    enum cgi cgi_n = get_cgi_function(uri);
+    enum cgi cgi_n = getCgiFunction(uri);
     if (method == M_POST && body) {
-        count_param += parse_parameter(body);
+        count_param += parseParameter(body);
     }
     cgi_requests[cgi_n](out_buf, query_param, count_param);
 }
 
 
-static uint8_t parse_parameter(char *param) {
+static uint8_t parseParameter(char *param) {
     if (param == NULL) {
         return 0;
     }
@@ -73,12 +73,12 @@ static uint8_t parse_parameter(char *param) {
 }
 
 
-static enum cgi get_cgi_function(const char *cgi_request) {
+static enum cgi getCgiFunction(const char *cgi_request) {
     for (uint8_t ix = 0; ix != CGI_Q; ++ix) {
         const char *requst = http_cgi_request[ix];
 
         if (strncmp(cgi_request, requst, strlen(requst)) == 0) {
-            if (is_authorization || cgi_allow_request[ix])
+            if (isAuthorization || cgi_allow_request[ix])
                 return ix;
             else
                 return CGI_CHECK_AUTHORIZATION;
@@ -88,7 +88,7 @@ static enum cgi get_cgi_function(const char *cgi_request) {
 }
 
 
-static inline char *search_parameter(char *uri, char **new_uri) {
+static inline char *searchParameter(char *uri, char **new_uri) {
     if (strchr(uri, '?')) {
         *new_uri = strtok(uri, "?");
         char *p = strtok(NULL, "?");

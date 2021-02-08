@@ -9,7 +9,7 @@
 #include <ctype.h>
 
 
-void trip_space_char(char **buf) {
+void tripSpaceChar(char **buf) {
     uint16_t ix = 0;
     while (isspace(*buf[ix])) {
         ix++;
@@ -18,12 +18,12 @@ void trip_space_char(char **buf) {
 }
 
 /**
- * @brief get_method анализирует строку на наличие метода
+ * @brief getMethod анализирует строку на наличие метода
  * @param[in] *m входящее сообщение
  * @return возвращает метод запроса, если запрос не поддерживается, то M_NOT_SUP
  */
-method_t get_method(char **m) {
-    struct buffer buffer = search_in_buffer(m, where_method);
+method_t getMethod(char **m) {
+    struct buffer buffer = searchInBuffer(m, where_method);
 
     if (strncmp(buffer.data, "GET", sizeof("GET") - 1) == 0) {
         return M_GET;
@@ -35,8 +35,8 @@ method_t get_method(char **m) {
 }
 
 
-version_t get_http_version(char **m) {
-    struct buffer buffer = search_in_buffer(m, where_version);
+version_t getHttpVersion(char **m) {
+    struct buffer buffer = searchInBuffer(m, where_version);
 
     if (strncmp(buffer.data, "HTTP/1.1", 8) == 0) {
         return V_1_1;
@@ -49,11 +49,11 @@ version_t get_http_version(char **m) {
 }
 
 /**
- * @brief get_ext_type определение типа расширения
+ * @brief getExtType определение типа расширения
  * @param[in] e входящее расширение
  * @return тип расширения
  */
-static ext_t get_ext_type(const char *e) {
+static ext_t getExtType(const char *e) {
     ext_t retVal = E_NOT_SUP;
 
     if (strncmp(e, "cgi", 3) == 0) {
@@ -81,45 +81,45 @@ static ext_t get_ext_type(const char *e) {
 
 
 
-static inline bool is_dot(char c) {
+static inline bool isDot(char c) {
     return c == '.';
 }
 
-static inline bool is_slash(const char *c) {
+static inline bool isSlash(const char *c) {
     return (strncmp(c, "/", 1) == 0);
 }
 /**
- * @brief get_data_extension_request функция ищет расширение запроса
+ * @brief getDataExtensionRequest функция ищет расширение запроса
  * @param[in] *uri  входящая строка сообщения
  * @return возвращает расширение
  *
  * При получении сообщения, функция ищет сообщение запроса, например .html или
  * .js
  */
-ext_t get_data_extension_request(char *uri, uint16_t len) {
+ext_t getDataExtensionRequest(char *url, uint16_t len) {
     uint32_t index = 0;
     char ext[5];
     memset(ext, 0, sizeof(ext));
 
-    if (strrchr(uri, '.')) {
+    if (strrchr(url, '.')) {
         uint32_t i;
 
         for (i = 0; i < len; i++) {
-            if (is_dot(uri[i])) {
+            if (isDot(url[i])) {
                 index = i + 1;
                 break;
             }
         }
         i = index;
         while ((i < len) && ((i - index) < 5)) {
-            ext[i - index] = uri[i];
+            ext[i - index] = url[i];
             i++;
         }
     }
 
-    if ((len == 1) && uri[0] == '/') {
+    if ((len == 1) && url[0] == '/') {
         ext[0] = '\0';
         strcat(ext, "html\0");
     }
-    return get_ext_type(ext);
+    return getExtType(ext);
 }

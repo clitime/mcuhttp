@@ -5,5 +5,5 @@
 #include <stdint.h>
 
 
-uint16_t get_body_size(char *m);
+uint16_t getBodySize(char *m);
 #endif

@@ -12,10 +12,10 @@ ROOT_PATH = ./scripts
 vpath %.c ./ ./src ./src/linux ./version
 vpath %.h ./ ./src ./src/linux ./version
 
-.PHONY: all fsdata_make test
+.PHONY: all fsdata_make test fsdata.c
 
 .ONESHELL:
-all: test fsdata_make $(TARGET)
+all: fsdata_make $(TARGET)
 
 $(TARGET): main.o http_server.o http_read_parser.o http_parser.o http_method_parser.o\
 	fsdata.o http_cgi_request.o fs.o\
@@ -39,8 +39,10 @@ http_parser.o: http_parser.c http_parser.h
 http_method_parser.o: http_method_parser.c http_method_parser.h fs.h http_cgi_request.h
 	$(GCC) $(CFLAGS) -c $<
 
-fsdata.o: fsdata.c fsdata.h fs.h
+fsdata.o: ./src/fsdata.c fsdata.h fs.h
 	$(GCC) $(CFLAGS) -c $<
+
+./src/fsdata.c: fsdata_make
 
 fs.o: fs.c fs.h fsdata.h
 	$(GCC) $(CFLAGS) -c $<

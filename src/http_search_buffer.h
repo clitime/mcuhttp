@@ -10,6 +10,6 @@ struct buffer {
 
 enum what_search{where_method, where_uri, where_version, where_header, where_body};
 
-struct buffer search_in_buffer(char **buf, enum what_search);
+struct buffer searchInBuffer(char **buf, enum what_search);
 
 #endif
