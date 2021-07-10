@@ -82,9 +82,9 @@ def buildVersionFile(cfg):
 
 
 def buildFromTemplate(cfg, str_ver, hash_date):
-    template = open(dir_path + '/' + cfg['template_file'], 'r')
+    template = open(dir_path + './' + cfg['template_file'], 'r')
 
-    ver_file = open(dir_path + '/' + cfg['version_path'], 'w')
+    ver_file = open(dir_path + './' + cfg['version_path'], 'w')
 
     for line in template:
         line = re.sub(
@@ -111,7 +111,7 @@ def readConfig():
         "version_path": "./version.c"
     }
     try:
-        with open(dir_path + "/config.json", "r") as config_file:
+        with open(dir_path + "./config.json", "r") as config_file:
             config = json.load(config_file)
     except OSError as ex:
         print('ERROR read configuration.', ex)

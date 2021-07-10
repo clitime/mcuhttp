@@ -115,7 +115,7 @@ struct fs_file methodHandler(ext_t ext, char *uri, uint16_t len, char *out_buf, 
     out_buf[0] = '\0';
 
     char file_name[255] = {0};
-    if ((len == 1) && isSlash(uri)) {
+    if ((len == 1) && is_slash(uri)) {
         strncat(file_name, "/index.html\0", 12);
     } else {
         strncat(file_name, uri, len);

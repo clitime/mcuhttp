@@ -12,10 +12,10 @@ ROOT_PATH = ./scripts
 vpath %.c ./ ./src ./src/linux ./version
 vpath %.h ./ ./src ./src/linux ./version
 
-.PHONY: all fsdata_make test fsdata.c
+.PHONY: all version fsdata_make test fsdata.c
 
 .ONESHELL:
-all: fsdata_make $(TARGET)
+all: version fsdata_make $(TARGET)
 
 $(TARGET): main.o http_server.o http_read_parser.o http_parser.o http_method_parser.o\
 	fsdata.o http_cgi_request.o fs.o\
@@ -56,6 +56,8 @@ http_cgi_request.o: http_cgi_request.c http_cgi_request.h http_cgi_function_list
 version.o: version.c version.h
 	$(GCC) $(CFLAGS) -c $<
 
+./version/version.c: version
+
 http_header_parser.o: http_header_parser.c http_header_parser.h
 	$(GCC) $(CFLAGS) -c $<
 
@@ -71,6 +73,10 @@ read_request.o: read_request.c read_request.h
 base64.o: base64.c base64.h
 	$(GCC) $(CFLAGS) -c $<
 
+version:
+	cd $(ROOT_PATH)
+	python3 semver.py
+	cd ../
 
 test:
 	ceedling test:all
@@ -89,4 +95,5 @@ print: *.[hc]
 
 clean:
 	-rm -rfv *.o $(TARGET)
+	-rm -rfv ./version/version.c ./src/fsdata.c
 	ceedling clean
