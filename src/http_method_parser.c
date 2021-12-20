@@ -60,9 +60,6 @@ static inline bool is_slash(const char *c) {
     return (strncmp(c, "/", 1) == 0);
 }
 
-/* TODO: указать размер выходного буффера */
-static char tmp_buf[1500] = {0};
-
 void error_413(char *out_buf) {
     const char *header = headerArr[HTTP_HEADER_413];
     const char *content = headerArr[CONTENT_HTML];
@@ -110,8 +107,22 @@ void error_505(char *out_buf) {
     sprintf(out_buf, "%s%s\r\n\r\n", header, content);
 }
 
+const uint8_t preambulaArray[][2] = {
+    {HTTP_HEADER_200, CONTENT_UTF},
+    {HTTP_HEADER_200, CONTENT_HTML},
+    {HTTP_HEADER_200, CONTENT_JPG},
+    {HTTP_HEADER_200, CONTENT_PNG},
+    {HTTP_HEADER_200, CONTENT_GIF},
+    {HTTP_HEADER_200, CONTENT_CSS},
+    {HTTP_HEADER_200, CONTENT_ICO},
+    {HTTP_HEADER_200, CONTENT_JS},
+    {HTTP_HEADER_200, CONTENT_TXT},
+    {HTTP_HEADER_404, CONTENT_HTML},
+    {HTTP_HEADER_501, CONTENT_HTML}
+};
+
 struct fs_file methodHandler(ext_t ext, char *uri, uint16_t len, char *out_buf, char *body, uint16_t body_len, method_t method) {
-    struct fs_file file = {NULL, 0, 0, NULL};
+    struct fs_file file = {NULL, 0};
     out_buf[0] = '\0';
 
     char file_name[255] = {0};
@@ -151,65 +162,30 @@ struct fs_file methodHandler(ext_t ext, char *uri, uint16_t len, char *out_buf, 
 
     const char *content;
     const char *header;
-    tmp_buf[0] = '\0';
+    out_buf[0] = '\0';
 
     if (method > M_POST) {
         header = headerArr[HTTP_HEADER_405];
         content = headerArr[CONTENT_TXT];
     } else {
-        switch ((uint8_t)ext) {
-        case E_HTML:
-            header = headerArr[HTTP_HEADER_200];
-            content = headerArr[CONTENT_HTML];
-            break;
-        case E_CGI:
-            header = headerArr[HTTP_HEADER_200];
-            content = headerArr[CONTENT_UTF];
-            cgiHandler(uri, tmp_buf, body, body_len, method);
-            break;
-        case E_TXT:
-            header = headerArr[HTTP_HEADER_200];
-            content = headerArr[CONTENT_TXT];
-            break;
-        case E_JS:
-            header = headerArr[HTTP_HEADER_200];
-            content = headerArr[CONTENT_JS];
-            break;
-        case E_CSS:
-            header = headerArr[HTTP_HEADER_200];
-            content = headerArr[CONTENT_CSS];
-            break;
-        case E_ICO:
-            header = headerArr[HTTP_HEADER_200];
-            content = headerArr[CONTENT_ICO];
-            break;
-        case E_GIF:
-            header = headerArr[HTTP_HEADER_200];
-            content = headerArr[CONTENT_GIF];
-            break;
-        case E_JPG:
-            header = headerArr[HTTP_HEADER_200];
-            content = headerArr[CONTENT_JPG];
-            break;
-        case E_PNG:
-            header = headerArr[HTTP_HEADER_200];
-            content = headerArr[CONTENT_PNG];
-            break;
-        case E_NOT_FOUND:
-            header = headerArr[HTTP_HEADER_404];
-            content = headerArr[CONTENT_HTML];
-            break;
-        case E_NOT_SUP:
-        default:
-            header = headerArr[HTTP_HEADER_501];
-            content = headerArr[CONTENT_HTML];
-            break;
+        header = headerArr[preambulaArray[(uint8_t)ext][0]];
+        content = headerArr[preambulaArray[(uint8_t)ext][1]];
+        if ((uint8_t)ext == E_CGI) {
+            cgiHandler(uri, out_buf, body, body_len, method);
         }
     }
 
-    if (strlen(tmp_buf)) {
-        sprintf(out_buf, "%s%s%u\r\n\r\n", header, content, (uint16_t)strlen(tmp_buf));
-        strcat(out_buf, tmp_buf);
+    size_t outLen = strlen(out_buf);
+    if (outLen) {
+        size_t hl = strlen(header);
+        size_t cl = strlen(content);
+        char l[10];
+        snprintf(l, 9, "%lu\r\n\r\n", outLen);
+        size_t ll = strlen(l);
+        memmove(&out_buf[hl+cl+ll], out_buf, outLen);
+        memcpy(out_buf, header, hl);
+        memcpy(&out_buf[hl], content, cl);
+        memcpy(&out_buf[hl+cl], l, ll);
     } else {
         sprintf(out_buf, "%s%s%d\r\n\r\n", header, content, file.len ? file.len - 1 : 0);
     }

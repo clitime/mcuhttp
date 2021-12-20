@@ -16,8 +16,6 @@ err_t fsOpen(struct fs_file *file, const char *name) {
         if (!strcmp(name, (const char *)f->name)) {
             file->data = (const char *)f->data;
             file->len = f->len;
-            file->index = f->len;
-            file->pextension = NULL;
             return 0;
         }
     }
@@ -28,9 +26,4 @@ err_t fsOpen(struct fs_file *file, const char *name) {
 
 void fsClose(struct fs_file *file) {
     memset(file, 0, sizeof(struct fs_file));
-}
-
-
-int fsBytesLeft(struct fs_file *file) {
-    return file->len - file->index;
 }

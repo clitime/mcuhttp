@@ -28,27 +28,29 @@ static const uint8_t cgi_allow_request[] = {
 };
 
 
-static char *query_param[20]; //буфер параметров
+// static char *query_param[20]; //буфер параметров
 
 
-static uint8_t parseParameter(char *param);
+static uint8_t parseParameter(char *param, char **query_param, uint8_t qlen);
 static enum cgi getCgiFunction(const char *cgi_request);
 static inline char *searchParameter(char *uri, char **new_uri);
 
 
 void cgiHandler(char *uri, char *out_buf, char *body, uint16_t body_len, method_t method) {
     char *param = searchParameter(uri, &uri);
-    uint8_t count_param = parseParameter(param);
+
+    char *query_param[20];
+    uint8_t count_param = parseParameter(param, query_param, 20);
 
     enum cgi cgi_n = getCgiFunction(uri);
     if (method == M_POST && body) {
-        count_param += parseParameter(body);
+        count_param += parseParameter(body, query_param, 20);
     }
     cgi_requests[cgi_n](out_buf, query_param, count_param);
 }
 
 
-static uint8_t parseParameter(char *param) {
+static uint8_t parseParameter(char *param, char **query_param, uint8_t qlen) {
     if (param == NULL) {
         return 0;
     }
@@ -59,7 +61,7 @@ static uint8_t parseParameter(char *param) {
     if (strchr(param, '&')) {
         tmp = strtok(param, "&");
 
-        while (tmp != NULL && num != sizeof(query_param)/sizeof(query_param[0])) {
+        while (tmp != NULL && num != qlen) {
             query_param[num] = tmp;
             num++;
             tmp = strtok(NULL, "&");

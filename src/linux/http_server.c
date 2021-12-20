@@ -77,23 +77,33 @@ static int giveNewConnection(int listen_fd) {
 static char *buf1;
 enum {
     OUT_BUF_LEN = 2048,
+    BODY_BUF_LEN = 3072,
     IN_BUF_LEN = 4096
 };
-static char read_buf[IN_BUF_LEN];
-static char out_buf[OUT_BUF_LEN];
+static char readBuf[IN_BUF_LEN];
+static char outBuf[OUT_BUF_LEN];
+static char bodyBuf[BODY_BUF_LEN];
 static uint16_t left_data = 0;
 
 static void readHandler(int conn) {
-    memset(read_buf, 0, sizeof(read_buf));
+    memset(readBuf, 0, sizeof(readBuf));
     int ret = readRequest(conn, &buf1);
-    memcpy(read_buf, buf1, ret);
+    memcpy(readBuf, buf1, ret);
 
     if (ret <= 0) {
         return;
     }
     uint16_t total_len = ret;
     bool res = false;
-    struct fs_file file = httpParser(read_buf, total_len, out_buf, &left_data, &res);
+
+    struct httpParser parser = {
+        .inBuf = readBuf,
+        .inLen = total_len,
+        .outBuf = outBuf,
+        .bodyBuf = bodyBuf,
+        .maxBodyLen = BODY_BUF_LEN
+    };
+    struct fs_file file = httpParser(&parser, &left_data, &res);
 
     while (!res) {
         ret = readRequest(conn, &buf1);
@@ -102,15 +112,15 @@ static void readHandler(int conn) {
         }
 
         if (IN_BUF_LEN - total_len > ret) {
-            memcpy(&read_buf[total_len], buf1, ret);
+            memcpy(&readBuf[total_len], buf1, ret);
         } else {
             return;
         }
         total_len += ret;
-        file = httpParser(read_buf, total_len, out_buf, &left_data, &res);
+        file = httpParser(&parser, &left_data, &res);
     }
 
-    sendContent(conn, out_buf, (int32_t) strlen(out_buf));
+    sendContent(conn, outBuf, (int32_t) strlen(outBuf));
     if (file.len) {
         sendContent(conn, file.data, file.len - 1);
     }

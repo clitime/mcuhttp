@@ -43,7 +43,7 @@ void test_encode_err_inlen_more_outlen(void) {
 void test_decode_1(void) {
     const char input[] = "SA";
     char output[3] = {0};
-    decode(input, 4, output, 3);
+    decode(input, 4, output);
     const char expected[] = "H\0\0";
     TEST_ASSERT_EQUAL_CHAR_ARRAY(expected, output, 3);
 }
@@ -52,7 +52,7 @@ void test_decode_1(void) {
 void test_decode_hw(void) {
     const char input[] = "SGVsbG8sIHdvcmxk";
     char output[12] = {0};
-    decode(input, 16, output, 12);
+    decode(input, 16, output);
     const char expected[] = "Hello, world";
     TEST_ASSERT_EQUAL_CHAR_ARRAY(expected, output, 12);
 }
