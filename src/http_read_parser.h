@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include "http_method_parser.h"
 
 struct httpParser {
     char *inBuf;
@@ -12,8 +13,6 @@ struct httpParser {
     const uint16_t maxBodyLen;
 };
 
-struct fs_file httpParser(struct httpParser *const parser, uint16_t *left_data, bool *ok);
-// struct fs_file httpParser(char *buf1, uint16_t in_data_len, char *out_buf, uint16_t *left_data, bool *ok);
-
+struct response httpParser(struct httpParser *const parser, uint16_t *left_data, bool *ok);
 
 #endif

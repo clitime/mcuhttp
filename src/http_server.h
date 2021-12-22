@@ -2,7 +2,7 @@
 #define HTTP_SERVER_H_
 
 
-void httpsInitialize(void);
+void httpInitialize(void);
 
 
 #endif

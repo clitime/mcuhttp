@@ -7,9 +7,23 @@
 #include "fs.h"
 #include "http_base.h"
 
+struct query {
+    method_t method;
+    ext_t ext;
+    char *uri;
+    uint16_t uriLen;
+    char *body;
+    uint16_t bodyLen;
+    char *outBuf;
+    uint16_t maxOutLen;
+};
 
-struct fs_file methodHandler(ext_t ext, char *uri, uint16_t len, char *out_buf,
-                             char *body, uint16_t body_len, method_t method);
+struct response {
+    const char *data;
+    uint32_t dlen;
+};
+
+struct response methodHandler(struct query *const query);
 
 void error_400(char *out_buf);
 void error_413(char *out_buf);

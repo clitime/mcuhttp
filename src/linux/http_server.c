@@ -25,7 +25,7 @@ static void readHandler(int fd);
 static int sendContent(int conn, const char *out_buf, int left);
 
 
-void httpsInitialize(void) {
+void httpInitialize(void) {
     int fd = createSocket();
 
     for (;;) {
@@ -103,7 +103,7 @@ static void readHandler(int conn) {
         .bodyBuf = bodyBuf,
         .maxBodyLen = BODY_BUF_LEN
     };
-    struct fs_file file = httpParser(&parser, &left_data, &res);
+    struct response response = httpParser(&parser, &left_data, &res);
 
     while (!res) {
         ret = readRequest(conn, &buf1);
@@ -117,12 +117,12 @@ static void readHandler(int conn) {
             return;
         }
         total_len += ret;
-        file = httpParser(&parser, &left_data, &res);
+        response = httpParser(&parser, &left_data, &res);
     }
 
     sendContent(conn, outBuf, (int32_t) strlen(outBuf));
-    if (file.len) {
-        sendContent(conn, file.data, file.len - 1);
+    if (response.dlen) {
+        sendContent(conn, response.data, response.dlen - 1);
     }
 
     return;
