@@ -1,6 +1,0 @@
-{
-    "files.associations": {
-        "http_body_parser.h": "c",
-        "http_cgi_request.h": "c"
-    }
-}
