@@ -1,20 +1,20 @@
-#include "http_read_parser.h"
+#include "mcuhttp.h"
 #include "http_parser.h"
 #include "fs.h"
-#include <string.h>
 #include "http_search_buffer.h"
 #include "http_header_parser.h"
 #include "http_body_parser.h"
 #include "base64.h"
 
-#include <stdio.h>
+#include <string.h>
 
 const uint16_t max_uri_len = 512;
 
-struct response httpParser(struct httpParser *const parser, uint16_t *left_data, bool *ok) {
+struct response httpParser(struct httpParser *const parser, uint16_t *left_data,
+                           enum httpParserResult *res) {
     struct response response = {NULL, 0};
     *left_data = 0;
-    *ok = true; // запрос полностью обработан, можно посылать ответ
+    *res = HTTP_DONE; // запрос полностью обработан, можно посылать ответ
     char *const start_buf = parser->inBuf;
 
     tripSpaceChar(&parser->inBuf);
@@ -45,32 +45,32 @@ struct response httpParser(struct httpParser *const parser, uint16_t *left_data,
         error_505(parser->outBuf);
         return response;
     }
-    uint16_t chunk_len = 0;
+
+    struct buffer httpd_headers = getHeaders(&parser->inBuf);
+    uint16_t body_len = 0;
     if (method == M_POST) {
-        struct buffer httpd_headers = getHeaders(&parser->inBuf);
+        struct headers headers = headerParser(&httpd_headers);
 
         uint16_t size_http_preambul = (uint16_t)(parser->inBuf - start_buf);
-        uint16_t body_len = parser->inLen - size_http_preambul;
+        body_len = parser->inLen - size_http_preambul;
 
-        struct headers *headers = headerParser(&httpd_headers);
 
-        if (parser->maxBodyLen < headers->content_lenght) {
+        if (parser->maxBodyLen < headers.content_lenght) {
             error_413(parser->outBuf);
             return response;
         }
         /* нужно вычитать всё тело, прежде чем обрабатывать */
-        if (headers->content_lenght > body_len) {
-            *ok = false;
-            *left_data = headers->content_lenght - body_len;
+        if (headers.content_lenght > body_len) {
+            *res = HTTP_WAIT_BODY;
+            *left_data = headers.content_lenght - body_len;
             return response;
         }
-
-        /* все данные в post запросе закодированы base64 */
-        chunk_len = decode(parser->inBuf, body_len, parser->bodyBuf);
     }
-    struct query query = {
-        .ext = ext, .method = method, .body = parser->bodyBuf, .bodyLen = chunk_len,
-        .outBuf = parser->outBuf, .uri = uri.data, .uriLen = uri.len
+
+    struct request request = {
+        .ext = ext, .method = method, .body = {parser->inBuf, body_len},
+        .outBuf = parser->outBuf, .uri = uri, .headers = httpd_headers,
+        .getCgi = parser->getCgi
     };
-    return methodHandler(&query);
+    return methodHandler(&request);
 }

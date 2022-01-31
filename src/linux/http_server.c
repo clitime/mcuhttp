@@ -7,16 +7,17 @@
 
 
 #include "fs.h"
-#include "http_read_parser.h"
+#include "mcuhttp.h"
 #include "http_header_parser.h"
-#include "read_request.h"
+
+#include "http_cgi_function_list.h"
 
 #include <string.h>
 #include <stdio.h>
 #include <stdbool.h>
 
 
-const uint16_t serverPort = 8080;
+const uint16_t serverPort = 8081;
 const int listenBacklog = 5;
 
 static int createSocket(void);
@@ -85,34 +86,56 @@ static char outBuf[OUT_BUF_LEN];
 static char bodyBuf[BODY_BUF_LEN];
 static uint16_t left_data = 0;
 
+static char read_buf[1640];
+static int save_conn = -1;
+
+int readRequest(int conn, char **buf) {
+    memset(read_buf, 0, sizeof(read_buf));
+    *buf = 0;
+    if (conn >= 0) {
+        save_conn = conn;
+    }
+    if (save_conn == -1) {
+        return -1;
+    }
+    int ret = read(save_conn, read_buf, sizeof(read_buf));
+    if (ret > 0) {
+        *buf = read_buf;
+    }
+    return ret;
+}
+
+
 static void readHandler(int conn) {
     memset(readBuf, 0, sizeof(readBuf));
     int ret = readRequest(conn, &buf1);
-    memcpy(readBuf, buf1, ret);
-
     if (ret <= 0) {
         return;
     }
+
+    memcpy(readBuf, buf1, (unsigned)ret);
+
     uint16_t total_len = ret;
-    bool res = false;
+    enum httpParserResult res = HTTP_DONE;
 
     struct httpParser parser = {
         .inBuf = readBuf,
         .inLen = total_len,
         .outBuf = outBuf,
         .bodyBuf = bodyBuf,
-        .maxBodyLen = BODY_BUF_LEN
+        .maxBodyLen = BODY_BUF_LEN,
+        .getCgi = getCgiFunction
     };
     struct response response = httpParser(&parser, &left_data, &res);
 
-    while (!res) {
+    while (res == HTTP_WAIT_BODY) {
         ret = readRequest(conn, &buf1);
         if (ret <= 0) {
             return;
         }
 
         if (IN_BUF_LEN - total_len > ret) {
-            memcpy(&readBuf[total_len], buf1, ret);
+            memcpy(&readBuf[total_len], buf1, (unsigned)ret);
         } else {
             return;
         }
@@ -136,7 +159,7 @@ static int sendContent(int conn, const char *out_buf, int left) {
         ret = send(conn, out_buf + total, (size_t) left, 0);
 
         if (ret == -1) {
-            ret = send(conn, out_buf + total, left, 0);
+            ret = send(conn, out_buf + total, (size_t)left, 0);
             if (ret == -1) {
                 break;
             }

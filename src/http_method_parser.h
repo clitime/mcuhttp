@@ -7,23 +7,23 @@
 #include "fs.h"
 #include "http_base.h"
 
-struct query {
+struct request {
     method_t method;
     ext_t ext;
-    char *uri;
-    uint16_t uriLen;
-    char *body;
-    uint16_t bodyLen;
+    struct buffer uri;
+    struct buffer body;
+    struct buffer headers;
     char *outBuf;
     uint16_t maxOutLen;
+    getCgiFn getCgi;
 };
 
 struct response {
     const char *data;
-    uint32_t dlen;
+    int dlen;
 };
 
-struct response methodHandler(struct query *const query);
+struct response methodHandler(struct request *const request);
 
 void error_400(char *out_buf);
 void error_413(char *out_buf);

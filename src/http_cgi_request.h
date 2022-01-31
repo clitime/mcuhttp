@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include "http_base.h"
 
-void cgiHandler(char *uri, char *out_buf, char *body, uint16_t body_len, method_t method);
+
+void cgiHandler(char *uri, char *out_buf, getCgiFn getCgi);
 
 #endif

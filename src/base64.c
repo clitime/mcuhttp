@@ -65,8 +65,6 @@ static void encodeBlock(const char *const in, char *const out, uint16_t len) {
     out[3] = encodeTable[ix];
 }
 
-
-#include <stdio.h>
 /**
  * |6 5 4 3 2 1|6 5 4 3 2 1|6 5 4 3 2 1|6 5 4 3 2 1| - вход
  * |8 7 6 5 4 3 2 1|8 7 6 5 4 3 2 1|8 7 6 5 4 3 2 1| - выход
@@ -99,9 +97,9 @@ static uint8_t decodeBlock(const char *const in, char *const out, uint16_t len) 
         }
     }
 
-    out[0] = (uint8_t)(buffer[0] << 2) | (uint8_t)(buffer[1] >> 4);
-    out[1] = (uint8_t)(buffer[1] << 4) | (uint8_t)(buffer[2] >> 2);
-    out[2] = (uint8_t)(buffer[2] << 6) | buffer[3];
+    out[0] = ((uint8_t)buffer[0] << 2) | ((uint8_t)buffer[1] >> 4);
+    out[1] = ((uint8_t)buffer[1] << 4) | ((uint8_t)buffer[2] >> 2);
+    out[2] = ((uint8_t)buffer[2] << 6) | buffer[3];
     return buf_len - 1;
 }
 

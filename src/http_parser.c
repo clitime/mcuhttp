@@ -3,7 +3,6 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
-#include <stdio.h>
 
 #include "http_search_buffer.h"
 #include <ctype.h>
@@ -117,7 +116,7 @@ ext_t getDataExtensionRequest(char *url, uint16_t len) {
         }
     }
 
-    if ((len == 1) && url[0] == '/') {
+    if (len == 1 && url[0] == '/') {
         ext[0] = '\0';
         strcat(ext, "html\0");
     }

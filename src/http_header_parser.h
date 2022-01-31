@@ -9,6 +9,6 @@ struct headers {
     uint16_t content_lenght;
 };
 
-struct headers * headerParser(struct buffer *const buf);
+struct headers headerParser(struct buffer *const buf);
 
 #endif

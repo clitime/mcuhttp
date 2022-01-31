@@ -1,6 +1,6 @@
 GCC = gcc
 CDBGFLAGS = -g -O0
-CFLAGS = $(CDBGFLAGS) -Wall
+CFLAGS = $(CDBGFLAGS) -Wall -Wextra -pedantic -Wsign-conversion
 CFLAGS += -I ./\
 		  -I ./src/\
 		  -I ./src/linux\
@@ -17,20 +17,20 @@ vpath %.h ./ ./src ./src/linux ./version
 .ONESHELL:
 all: version fsdata_make $(TARGET)
 
-$(TARGET): main.o http_server.o http_read_parser.o http_parser.o http_method_parser.o\
+$(TARGET): main.o http_server.o mcuhttp.o http_parser.o http_method_parser.o\
 	fsdata.o http_cgi_request.o fs.o\
 	version.o http_header_parser.o\
-	http_search_buffer.o http_body_parser.o read_request.o\
+	http_search_buffer.o http_body_parser.o\
 	base64.o http_cgi_function_list.o
 	$(GCC) $(CFLAGS) $^ -o $@
 
 main.o: main.c http_server.h
 	$(GCC) $(CFLAGS) -c $<
 
-http_server.o: http_server.c http_server.h fs.h http_read_parser.h
+http_server.o: http_server.c http_server.h fs.h mcuhttp.h
 	$(GCC) $(CFLAGS) -c $<
 
-http_read_parser.o: http_read_parser.c http_read_parser.h fs.h http_parser.h http_method_parser.h
+mcuhttp.o: mcuhttp.c mcuhttp.h fs.h http_parser.h http_method_parser.h
 	$(GCC) $(CFLAGS) -c $<
 
 http_parser.o: http_parser.c http_parser.h
@@ -65,9 +65,6 @@ http_search_buffer.o: http_search_buffer.c http_search_buffer.h
 	$(GCC) $(CFLAGS) -c $<
 
 http_body_parser.o: http_body_parser.c http_body_parser.h
-	$(GCC) $(CFLAGS) -c $<
-
-read_request.o: read_request.c read_request.h
 	$(GCC) $(CFLAGS) -c $<
 
 base64.o: base64.c base64.h

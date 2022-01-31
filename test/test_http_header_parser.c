@@ -15,6 +15,6 @@ void test_content_length() {
         .data = headers,
         .len = strlen(headers)
     };
-    struct headers *const hdrs = headerParser(&buf);
-    TEST_ASSERT_EQUAL_UINT16(254, hdrs->content_lenght);
+    struct headers const hdrs = headerParser(&buf);
+    TEST_ASSERT_EQUAL_UINT16(254, hdrs.content_lenght);
 }

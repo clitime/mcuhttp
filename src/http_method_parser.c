@@ -121,66 +121,67 @@ const uint8_t titleArray[][2] = {
     {HTTP_HEADER_501, CONTENT_HTML}
 };
 
-struct response fileHandler(struct query * const query) {
+struct response fileHandler(struct request * const request) {
     struct fs_file file = {NULL, 0};
 
     char file_name[255] = {0};
 
-    if (!isAuthorization && query->ext == E_HTML && strncmp(file_name, "/index.html", sizeof("/index.html"))) {
+    if (!isAuthorization && request->ext == E_HTML && strncmp(file_name, "/index.html", sizeof("/index.html"))) {
         strncat(file_name, "/login.html", 12);
-    } else if (!isAuthorization && query->ext == E_TXT) {
+    } else if (!isAuthorization && request->ext == E_TXT) {
         strncat(file_name, "/txt/login.txt", 15);
     } else {
-        if ((query->uriLen == 1) && isSlash(query->uri)) {
+        if ((request->uri.len == 1) && isSlash(request->uri.data)) {
             strncat(file_name, "/index.html", 12);
         } else {
-            strncat(file_name, query->uri, query->uriLen);
+            strncat(file_name, request->uri.data, request->uri.len);
         }
     }
 
     if (fsOpen(&file, file_name)) {
-        if (fsOpen(&file, query->ext == E_TXT ? "/404.html" : "/txt/404.txt")) {
+        if (fsOpen(&file, request->ext == E_TXT ? "/404.html" : "/txt/404.txt")) {
             fsClose(&file);
         } else {
-            query->ext = E_NOT_FOUND;
+            request->ext = E_NOT_FOUND;
         }
     }
 
     return (struct response){.data = file.data, .dlen = file.len};
 }
 
-struct response methodHandler(struct query * const query) {
+struct response methodHandler(struct request * const request) {
     struct response response = {NULL, 0};
 
     const char *content;
     const char *header;
-    if (query->method > M_POST) {
+    if (request->method > M_POST) {
         header = headerArr[HTTP_HEADER_405];
         content = headerArr[CONTENT_TXT];
     } else {
-        if (query->ext == E_CGI) {
-            query->outBuf[0] = '\0';
-            cgiHandler(query->uri, query->outBuf, query->body, query->bodyLen, query->method);
+        if (request->ext == E_CGI) {
+            request->outBuf[0] = '\0';
 
-            header = headerArr[titleArray[(uint8_t)query->ext][0]];
-            content = headerArr[titleArray[(uint8_t)query->ext][1]];
+            cgiHandler(request->uri.data, request->outBuf, request->getCgi);
 
-            size_t outLen = strlen(query->outBuf);
+            header = headerArr[titleArray[(uint8_t)request->ext][0]];
+            content = headerArr[titleArray[(uint8_t)request->ext][1]];
+
+            size_t outLen = strlen(request->outBuf);
             size_t hl = strlen(header);
             size_t cl = strlen(content);
             char l[10];
             snprintf(l, 9, "%lu\r\n\r\n", outLen);
             size_t ll = strlen(l);
-            memmove(&query->outBuf[hl+cl+ll], query->outBuf, outLen);
-            memcpy(query->outBuf, header, hl);
-            memcpy(&query->outBuf[hl], content, cl);
-            memcpy(&query->outBuf[hl+cl], l, ll);
+            memmove(&request->outBuf[hl+cl+ll], request->outBuf, outLen);
+            memcpy(request->outBuf, header, hl);
+            memcpy(&request->outBuf[hl], content, cl);
+            memcpy(&request->outBuf[hl+cl], l, ll);
         } else {
-            response = fileHandler(query);
+            response = fileHandler(request);
 
-            header = headerArr[titleArray[(uint8_t)query->ext][0]];
-            content = headerArr[titleArray[(uint8_t)query->ext][1]];
-            sprintf(query->outBuf, "%s%s%d\r\n\r\n", header, content, response.dlen ? response.dlen - 1 : 0);
+            header = headerArr[titleArray[(uint8_t)request->ext][0]];
+            content = headerArr[titleArray[(uint8_t)request->ext][1]];
+            sprintf(request->outBuf, "%s%s%d\r\n\r\n", header, content, response.dlen ? response.dlen - 1 : 0);
         }
     }
 

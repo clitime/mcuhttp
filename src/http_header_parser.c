@@ -1,15 +1,11 @@
 #include "http_header_parser.h"
 #include <string.h>
-#include <stdio.h>
 #include <stdlib.h>
 
-
-static struct headers headers_struct = {0};
-
-struct headers * headerParser(struct buffer *const buf) {
+struct headers headerParser(struct buffer *const buf) {
     uint16_t len = buf->len;
     const char *const headers = buf->data;
-    headers_struct = (struct headers){0};
+    struct headers headers_struct = (struct headers){0};
 
     char c;
     uint16_t ix = 0;
@@ -26,9 +22,9 @@ struct headers * headerParser(struct buffer *const buf) {
                 ix += 15;
                 headers_struct.content_lenght = strtol(&headers[ix], 0, 10);
             } else if (strncmp(&headers[ix], "Connection:", 11) == 0) {
-
+// TODO:
             }
         }
     }
-    return &headers_struct;
+    return headers_struct;
 }

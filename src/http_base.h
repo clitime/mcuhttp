@@ -2,8 +2,7 @@
 #define http_base_h_
 
 #include <stdbool.h>
-extern bool isAuthorization;
-
+#include <stdint.h>
 
 typedef enum {
     M_GET,
@@ -32,5 +31,15 @@ typedef enum {
     E_NOT_FOUND,
     E_NOT_SUP
 } ext_t;
+
+struct buffer {
+    char *data;
+    uint16_t len;
+};
+
+typedef void cgiFn_t(char *uri, char **param, uint8_t plen, char *body, char *out);
+
+typedef void (*cgi_func)(char *out, char **param, uint8_t len_param);
+typedef cgi_func (*getCgiFn)(const char *);
 
 #endif
