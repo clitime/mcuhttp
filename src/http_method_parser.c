@@ -152,6 +152,8 @@ struct response fileHandler(struct request * const request) {
 struct response methodHandler(struct request * const request) {
     struct response response = {NULL, 0};
 
+    request->outBuf[0] = '\0';
+
     const char *content;
     const char *header;
     if (request->method > M_POST) {
@@ -159,8 +161,6 @@ struct response methodHandler(struct request * const request) {
         content = headerArr[CONTENT_TXT];
     } else {
         if (request->ext == E_CGI) {
-            request->outBuf[0] = '\0';
-
             cgiHandler(request->uri.data, request->outBuf, request->getCgi);
 
             header = headerArr[titleArray[(uint8_t)request->ext][0]];

@@ -47,35 +47,38 @@ version_t getHttpVersion(char **m) {
     return V_UNKNOWN;
 }
 
+
+struct extLen {
+    const char *ext;
+    uint32_t len;
+    ext_t ret;
+};
+
+const struct extLen extLen[] = {
+    {"cgi", 3, E_CGI},
+    {"html", 4, E_HTML},
+    {"htm", 3, E_HTML},
+    {"shtml", 5, E_HTML},
+    {"jpg", 3, E_JPG},
+    {"png", 3, E_PNG},
+    {"gif", 3, E_GIF},
+    {"css", 3, E_CSS},
+    {"ico", 3, E_ICO},
+    {"js", 2, E_JS},
+    {"txt", 3, E_TXT}
+};
 /**
  * @brief getExtType определение типа расширения
  * @param[in] e входящее расширение
  * @return тип расширения
  */
 static ext_t getExtType(const char *e) {
-    ext_t retVal = E_NOT_SUP;
-
-    if (strncmp(e, "cgi", 3) == 0) {
-        retVal = E_CGI;
-    } else if ((strncmp(e, "html", 4) == 0) || (strncmp(e, "htm", 3) == 0) ||
-               (strncmp(e, "shtml", 5) == 0)) {
-        retVal = E_HTML;
-    } else if ((strncmp(e, "jpg", 3) == 0)) {
-        retVal = E_JPG;
-    } else if ((strncmp(e, "png", 3) == 0)) {
-        retVal = E_PNG;
-    } else if ((strncmp(e, "gif", 3) == 0)) {
-        retVal = E_GIF;
-    } else if ((strncmp(e, "css", 3) == 0)) {
-        retVal = E_CSS;
-    } else if ((strncmp(e, "ico", 3) == 0)) {
-        retVal = E_ICO;
-    } else if ((strncmp(e, "js", 2) == 0)) {
-        retVal = E_JS;
-    } else if ((strncmp(e, "txt", 3) == 0)) {
-        retVal = E_TXT;
+    for (size_t i = 0; i < sizeof(extLen)/sizeof(extLen[0]); i++) {
+        if (strncmp(e, extLen[i].ext, extLen[i].len) == 0) {
+            return extLen[i].ret;
+        }
     }
-    return retVal;
+    return E_NOT_SUP;
 }
 
 
